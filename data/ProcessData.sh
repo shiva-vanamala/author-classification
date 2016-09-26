@@ -1,10 +1,9 @@
 head -n -366 raw/*.txt | tail -n +37 >> processed/out.txt
-for d in [0-9][0-9]
+for ((i=1;i<=100;i++));
 do
-    echo $d
+    echo $i
 done
-
-for fn in `cat filenames.txt`; do
-    echo "the next file is $fn"
-    cat $fn
-done
+#for fn in `cat filenames.txt`; do
+#    echo "the next file is $fn"
+#    cat $fn
+#done
