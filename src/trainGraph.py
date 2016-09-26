@@ -1,3 +1,8 @@
+'''
+Created on Sep 25, 2016
+
+@author: shiva
+'''
 """
 Train convolutional network for sentiment analysis. Based on
 "Convolutional Neural Networks for Sentence Classification" by Yoon Kim
@@ -37,25 +42,6 @@ achieve performance reported in the article (81.6%)
 
 ** Another distinct difference is slidind MaxPooling window of length=2
 instead of MaxPooling over whole feature map as in the article
-"""
-
-import numpy as np
-import data_helpers
-from w2v import train_word2vec
-
-from keras.models import Sequential, Model
-from keras.layers import Activation, Dense, Dropout, Embedding, Flatten, Input, Merge, Convolution1D, MaxPooling1D
-
-np.random.seed(2)
-
-# Parameters
-# ==================================================
-#
-# Model Variations. See Kim Yoon's Convolutional Neural Networks for 
-# Sentence Classification, Section 3 for detail.
-
-model_variation = 'CNN-rand'  #  CNN-rand | CNN-non-static | CNN-static
-print('Model variation is %s' % model_variation)
 
 # Model Hyperparameters
 sequence_length = 56
@@ -74,12 +60,56 @@ val_split = 0.1
 min_word_count = 1  # Minimum word count                        
 context = 10        # Context window size    
 
+"""
+
+import numpy as np
+import data_helpers
+from w2v import train_word2vec
+
+from keras.models import Sequential, Model
+from keras.layers import Activation, Dense, Dropout, Embedding, Flatten, Input, Merge, Convolution1D, MaxPooling1D
+from keras.layers.normalization import BatchNormalization
+
+np.random.seed(2)
+
+# Parameters
+# ==================================================
+#
+# Model Variations. See Kim Yoon's Convolutional Neural Networks for 
+# Sentence Classification, Section 3 for detail.
+
+model_variation = 'CNN-rand'  #  CNN-rand | CNN-non-static | CNN-static
+print('Model variation is %s' % model_variation)
+
+# Model Hyperparameters
+sequence_length = 496 #56
+embedding_dim = 20          
+filter_sizes = (3, 4)
+num_filters = 150
+dropout_prob = (0.25, 0.5)
+hidden_dims = 150
+output_length = 25
+
+# Training parameters
+batch_size = 256#32
+num_epochs = 100
+val_split = 0.1
+
+# Word2Vec parameters, see train_word2vec
+min_word_count = 1  # Minimum word count                        
+context = 10        # Context window size    
+
 # Data Preparatopn
 # ==================================================
 #
 # Load data
 print("Loading data...")
 x, y, vocabulary, vocabulary_inv = data_helpers.load_data()
+
+sequence_length = len(x[0])
+output_length = np.shape(y[0])[0]
+
+print sequence_length
 
 if model_variation=='CNN-non-static' or model_variation=='CNN-static':
     embedding_weights = train_word2vec(x, vocabulary_inv, embedding_dim, min_word_count, context)
@@ -93,7 +123,7 @@ else:
 # Shuffle data
 shuffle_indices = np.random.permutation(np.arange(len(y)))
 x_shuffled = x[shuffle_indices]
-y_shuffled = y[shuffle_indices].argmax(axis=1)
+y_shuffled = y[shuffle_indices]#.argmax(axis=1)
 
 print("Vocabulary Size: {:d}".format(len(vocabulary)))
 
@@ -131,9 +161,12 @@ model.add(graph)
 model.add(Dense(hidden_dims))
 model.add(Dropout(dropout_prob[1]))
 model.add(Activation('relu'))
-model.add(Dense(1))
-model.add(Activation('sigmoid'))
-model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+#model.add(Dense(1))
+#model.add(Activation('sigmoid'))
+#model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+model.add(Dense(output_length))
+model.add(Activation('softmax'))
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 # Training model
 # ==================================================

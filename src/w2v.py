@@ -1,3 +1,8 @@
+'''
+Created on Sep 25, 2016
+
+@author: shiva
+'''
 from gensim.models import word2vec
 from os.path import join, exists, split
 import os
@@ -55,6 +60,9 @@ def train_word2vec(sentence_matrix, vocabulary_inv,
 if __name__=='__main__':
     import data_helpers
     print("Loading data...")
-    x, _, _, vocabulary_inv = data_helpers.load_data()
+    x, y, _, vocabulary_inv = data_helpers.load_data()
+    
+    print len(x), len(x[0]), len(y), np.shape(y[0])[0]
+    
     w = train_word2vec(x, vocabulary_inv)
 

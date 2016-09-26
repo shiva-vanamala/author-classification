@@ -15,7 +15,7 @@ Original taken from https://github.com/alexander-rakhlin/CNN-for-Sentence-Classi
 DATA_FILE_PRE = "../data/processed/Author"
 DATA_FILE_POST = ".txt"
 
-NUM_AUTHORS = 2
+NUM_AUTHORS = 25
 PARAGRAPH_SIZE = 30
 
 def clean_str(string):
